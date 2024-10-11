@@ -25,6 +25,7 @@ namespace Lab1
         public int countIndexStep = 1;
         bfs bfs = initBFS(false);//в ширину
         dfs dfs = initDFS(false);//в глубину
+        private InformedSearch IS = InitIS(false);
         iddfs iddfs = initIDDFS(false);//в глубину с итерацией
         //сделать инициализацию правильно!!!!
         bis bis = new bis();
@@ -73,6 +74,17 @@ namespace Lab1
             }
             else return null;
         }//++
+
+        public static InformedSearch InitIS(bool check)
+        {
+            if (check)
+            {
+                InformedSearch IS = new InformedSearch();
+                return IS;
+            }
+
+            return null;
+        }
 
         public Form1()
         {
@@ -361,6 +373,7 @@ namespace Lab1
         {
             ReadMap("level1.txt");
             bfs = initBFS(true);
+            IS = InitIS(true);
             dfs = initDFS(true);
             iddfs = initIDDFS(true);
             button2.Enabled = true;
@@ -374,6 +387,7 @@ namespace Lab1
         {
             ReadMap("level2.txt");
             bfs = initBFS(true);
+            IS = InitIS(true);
             dfs = initDFS(true);
             iddfs = initIDDFS(true);
             button2.Enabled = true;
