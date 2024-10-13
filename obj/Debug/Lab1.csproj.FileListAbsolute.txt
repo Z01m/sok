@@ -8,23 +8,3 @@ D:\4 курс\Системы искусственного интеллекта\L
 D:\4 курс\Системы искусственного интеллекта\Lab1\Lab1\obj\Debug\Lab1.csproj.CoreCompileInputs.cache
 D:\4 курс\Системы искусственного интеллекта\Lab1\Lab1\obj\Debug\Lab1.exe
 D:\4 курс\Системы искусственного интеллекта\Lab1\Lab1\obj\Debug\Lab1.pdb
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\bin\Debug\Lab1.exe.config
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\bin\Debug\Lab1.exe
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\bin\Debug\Lab1.pdb
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\obj\Debug\Lab1.csproj.AssemblyReference.cache
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\obj\Debug\Lab1.Form1.resources
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\obj\Debug\Lab1.Properties.Resources.resources
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\obj\Debug\Lab1.csproj.GenerateResource.cache
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\obj\Debug\Lab1.csproj.CoreCompileInputs.cache
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\obj\Debug\Lab1.exe
-C:\Users\ADMIN\Desktop\Sokoban_2-main\Lab1\obj\Debug\Lab1.pdb
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\bin\Debug\Lab1.exe.config
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\bin\Debug\Lab1.exe
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\bin\Debug\Lab1.pdb
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\obj\Debug\Lab1.csproj.AssemblyReference.cache
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\obj\Debug\Lab1.Form1.resources
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\obj\Debug\Lab1.Properties.Resources.resources
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\obj\Debug\Lab1.csproj.GenerateResource.cache
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\obj\Debug\Lab1.csproj.CoreCompileInputs.cache
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\obj\Debug\Lab1.exe
-H:\JetBrains\projects\Sokoban\Sokoban's search\sok\obj\Debug\Lab1.pdb

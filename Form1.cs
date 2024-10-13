@@ -16,24 +16,24 @@ namespace Lab1
 
     public partial class Form1 : Form
     {
-        private Image texture_box = Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "texture", "box.png"));
-        private Image texture_empty = Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "texture", "empty.png"));
-        private Image texture_player = Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "texture", "player.png"));
-        private Image texture_point = Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "texture", "point.png"));
-        private Image texture_wall = Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "texture", "wall.png"));
+        private Image texture_box = Image.FromFile("D:\\4 курс\\Системы искусственного интеллекта\\Lab1\\Lab1\\texture\\box.png");
+        private Image texture_empty = Image.FromFile("D:\\4 курс\\Системы искусственного интеллекта\\Lab1\\Lab1\\texture\\empty.png");
+        private Image texture_player = Image.FromFile("D:\\4 курс\\Системы искусственного интеллекта\\Lab1\\Lab1\\texture\\player.png");
+        private Image texture_point = Image.FromFile("D:\\4 курс\\Системы искусственного интеллекта\\Lab1\\Lab1\\texture\\point.png");
+        private Image texture_wall = Image.FromFile("D:\\4 курс\\Системы искусственного интеллекта\\Lab1\\Lab1\\texture\\wall.png");
         private int size_texture = 100;
         public int countIndexStep = 1;
         bfs bfs = initBFS(false);//в ширину
         dfs dfs = initDFS(false);//в глубину
-        private InformedSearch IS = InitIS(false);
         iddfs iddfs = initIDDFS(false);//в глубину с итерацией
-        //сделать инициализацию правильно!!!!
-        bis bis = new bis();
+        bis bis = initBIS(false);
+        infs.InformedSearch infs = initInformedSearch(false);
 
         public bool checkBFS = false;//какой алгоритм сейчас работает для вызова шага в них
         public bool checkDFS = false;
         public bool checkIDDFS = false;
         public bool checkBIS = false;
+        public bool checkINFS = false;
 
         public static bfs initBFS(bool check)
         {
@@ -69,22 +69,21 @@ namespace Lab1
         {
             if (check)
             {
-                bis bis= new bis();
+                bis bis = new bis();
                 return bis;
             }
             else return null;
         }//++
 
-        public static InformedSearch InitIS(bool check)
+        public static infs.InformedSearch initInformedSearch(bool check)
         {
             if (check)
             {
-                InformedSearch IS = new InformedSearch();
-                return IS;
+                infs.InformedSearch infs = new infs.InformedSearch();
+                return infs;
             }
-
-            return null;
-        }
+            else return null;
+        }//++
 
         public Form1()
         {
@@ -146,6 +145,7 @@ namespace Lab1
             button3.Enabled = false;
             button_DFS.Enabled = false;
             buttonBIS.Enabled = false;
+            button_InformedSearch.Enabled = false;
         }
 
 
@@ -162,6 +162,9 @@ namespace Lab1
             countIndexStep = 1;
             checkBFS = true;
             checkDFS = false;
+            checkBIS = false;
+            checkIDDFS = false;
+            checkINFS = false;
             button_NextStep.Enabled = true;
             labelCountNode.Text = bfs.GetCountNode().ToString();
             labelCountSteps.Text = bfs.GetCountSteps().ToString();
@@ -170,6 +173,7 @@ namespace Lab1
             button2.Enabled = false;
             buttonBIS.Enabled = false;
             button3.Enabled = false;
+            button_InformedSearch.Enabled = false;
         }
 
         private void button_NextStep_Click(object sender, EventArgs e)//Отобразить следующий шаг
@@ -235,7 +239,7 @@ namespace Lab1
 
                 }
             }
-            else if(checkBIS)
+            else if (checkBIS)
             {
                 if (bis.NumberNextStep(countIndexStep))
                 {
@@ -253,6 +257,25 @@ namespace Lab1
                     button_PrevStep.Enabled = true;
 
                 }
+            }
+            else if (checkINFS)
+            {
+                if (infs.NumberNextStep(countIndexStep))
+                {
+                    infs.DrawNextStep(countIndexStep);
+                    labelState.Text = $"Ход: {countIndexStep}";
+                    button_NextStep.Enabled = true;
+                    button_PrevStep.Enabled = true;
+                    countIndexStep++;
+                }
+                else 
+                {
+                    infs.DrawNextStep(countIndexStep);
+                    labelState.Text = "WIN!";
+                    button_NextStep.Enabled = false; // блокировать если следующего шага нет (достигнут позиции WIN)
+                    button_PrevStep.Enabled = true;
+                }
+
             }
 
 
@@ -294,9 +317,9 @@ namespace Lab1
                     button_NextStep.Enabled = true;
                     button_PrevStep.Enabled = false;
                 }
-                
+
             }
-            else if(checkIDDFS)
+            else if (checkIDDFS)
             {
                 if (countIndexStep != 0)
                 {
@@ -314,7 +337,7 @@ namespace Lab1
                 }
 
             }
-            else if(checkBIS)
+            else if (checkBIS)
             {
                 if (countIndexStep != 0)
                 {
@@ -326,6 +349,24 @@ namespace Lab1
                 else
                 {
                     bis.DrawPrevStep(countIndexStep);
+                    labelState.Text = $"Ход: стартовая позиция";
+                    button_NextStep.Enabled = true;
+                    button_PrevStep.Enabled = false;
+                }
+
+            }
+            else if (checkINFS)
+            {
+                if (countIndexStep != 0)
+                {
+                    countIndexStep--;
+                    infs.DrawPrevStep(countIndexStep);
+                    labelState.Text = $"Ход: {countIndexStep}";
+                    button_NextStep.Enabled = true;
+                }
+                else
+                {
+                    infs.DrawPrevStep(countIndexStep);
                     labelState.Text = $"Ход: стартовая позиция";
                     button_NextStep.Enabled = true;
                     button_PrevStep.Enabled = false;
@@ -340,8 +381,11 @@ namespace Lab1
         {
             dfs._DFS_();
             countIndexStep = 1;
-            checkDFS = true;
             checkBFS = false;
+            checkDFS = true;
+            checkBIS = false;
+            checkIDDFS = false;
+            checkINFS = false;
             labelCountNode.Text = dfs.GetCountNode().ToString();
             labelCountSteps.Text = dfs.GetCountSteps().ToString();
             labelCountIteration.Text = dfs.GetCountIteration().ToString();
@@ -350,15 +394,18 @@ namespace Lab1
             button2.Enabled = false;
             buttonBIS.Enabled = false;
             button3.Enabled = false;
+            button_InformedSearch.Enabled = false;
         }
 
         private void button3_Click(object sender, EventArgs e)//IDDFS
         {
-            iddfs._IDDFS_();
+            iddfs.IDDFS();
             countIndexStep = 1;
-            checkDFS = false;
             checkBFS = false;
+            checkDFS = false;
+            checkBIS = false;
             checkIDDFS = true;
+            checkINFS = false;
             labelCountNode.Text = iddfs.GetCountNode().ToString();
             labelCountSteps.Text = iddfs.GetCountSteps().ToString();
             labelCountIteration.Text = iddfs.GetCountIteration().ToString();
@@ -367,19 +414,22 @@ namespace Lab1
             button2.Enabled = false;
             buttonBIS.Enabled = false;
             button3.Enabled = false;
+            button_InformedSearch.Enabled = false;
         }
 
         private void buttonLevel1_Click(object sender, EventArgs e)
         {
             ReadMap("level1.txt");
             bfs = initBFS(true);
-            IS = InitIS(true);
             dfs = initDFS(true);
             iddfs = initIDDFS(true);
+            bis = initBIS(true);
+            infs = initInformedSearch(true);
             button2.Enabled = true;
             button_DFS.Enabled = true;
             buttonBIS.Enabled = true;
             button3.Enabled = true;
+            button_InformedSearch.Enabled = true;
             this.Invalidate();
         }
 
@@ -387,19 +437,21 @@ namespace Lab1
         {
             ReadMap("level2.txt");
             bfs = initBFS(true);
-            IS = InitIS(true);
             dfs = initDFS(true);
             iddfs = initIDDFS(true);
+            bis = initBIS(true);
+            infs = initInformedSearch(true);  
             button2.Enabled = true;
             button_DFS.Enabled = true;
             buttonBIS.Enabled = true;
             button3.Enabled = true;
+            button_InformedSearch.Enabled = true;
             this.Invalidate();
         }
 
         public void ReadMap(string name)
         {
-            string path = "level\\";
+            string path = @"D:\4 курс\Системы искусственного интеллекта\Lab1\Lab1\level\";
             string[] map = File.ReadAllLines(path + name);
             Console.WriteLine("map");
             foreach (var i in map)
@@ -416,8 +468,9 @@ namespace Lab1
             countIndexStep = 1;
             checkDFS = false;
             checkBFS = false;
-            checkIDDFS = false;
             checkBIS = true;
+            checkIDDFS = false;
+            checkINFS = false;
             labelCountNode.Text = bis.GetCountNode().ToString();
             labelCountSteps.Text = bis.GetCountSteps().ToString();
             labelCountIteration.Text = bis.GetCountIteration().ToString();
@@ -426,6 +479,27 @@ namespace Lab1
             button2.Enabled = false;
             buttonBIS.Enabled = false;
             button3.Enabled = false;
+            button_InformedSearch.Enabled = false;
+        }
+
+        private void button_InformedSearch_Click(object sender, EventArgs e)
+        {
+            infs.Search();
+            countIndexStep = 1;
+            checkDFS = false;
+            checkBFS = false;
+            checkBIS = false;
+            checkIDDFS = false;
+            checkINFS = true;
+            labelCountNode.Text = infs.GetCountNode().ToString();
+            labelCountSteps.Text = infs.GetCountSteps().ToString();
+            labelCountIteration.Text = infs.GetCountIteration().ToString();
+            button_NextStep.Enabled = true;
+            button_DFS.Enabled = false;
+            button2.Enabled = false;
+            buttonBIS.Enabled = false;
+            button3.Enabled = false;
+            button_InformedSearch.Enabled = false;
         }
     }
 }

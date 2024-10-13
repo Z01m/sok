@@ -1,132 +1,147 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
-namespace Lab1
+using Lab1;
+public class infs
 {
+    public class State
+    {
+        public (int x, int y) PlayerPosition;
+        public List<(int x, int y)> BoxPositions;
+        public List<(int x, int y)> PointPosition;
+        public State prevMove = null;
+        public int CountMoves = 0;
+
+        public State((int x, int y) playerPos, List<(int x, int y)> boxPos, List<(int x, int y)> pointPos, int CountMoves, State state)
+        {
+            this.PlayerPosition = (playerPos.x, playerPos.y);
+            this.BoxPositions = new List<(int x, int y)>(boxPos);
+            this.PointPosition = new List<(int x, int y)>(pointPos);
+            this.CountMoves = CountMoves;
+            this.prevMove = state;//предыдущий шаг
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            State other = obj as State;
+            if (other == null) return false;
+
+            if (PlayerPosition != other.PlayerPosition) return false;
+            if (CountMoves != other.CountMoves) return false;
+
+            // Compare box positions using a sorted list or HashSet for faster comparison
+            var thisBoxes = new HashSet<(int x, int y)>(BoxPositions);
+            var otherBoxes = new HashSet<(int x, int y)>(other.BoxPositions);
+            return thisBoxes.SetEquals(otherBoxes);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash = hash * 31 + PlayerPosition.x.GetHashCode();
+            hash = hash * 31 + PlayerPosition.y.GetHashCode();
+
+            foreach (var box in BoxPositions)
+            {
+                hash = hash * 31 + box.x.GetHashCode();
+                hash = hash * 31 + box.y.GetHashCode();
+            }
+
+            return hash;
+        }
+
+        public int Heuristic()
+        {
+            int heuristicValue = 0;
+            foreach (var box in BoxPositions)
+            {
+                int minDistance = PointPosition
+                    .Select(point => Math.Abs(point.x - box.x) + Math.Abs(point.y - box.y))
+                    .Min();
+                heuristicValue += minDistance;
+            }
+            return heuristicValue;
+        }
+
+        public int Cost()
+        {
+            return CountMoves;
+        }
+    }
+    public class PriorityQueue<T>
+    {
+        private List<Tuple<T, int>> elements = new List<Tuple<T, int>>();
+
+        public void Enqueue(T item, int priority)
+        {
+            elements.Add(Tuple.Create(item, priority));
+        }
+
+        public T Dequeue()
+        {
+            int bestIndex = 0;
+
+            for (int i = 0; i < elements.Count; i++)
+            {
+                if (elements[i].Item2 < elements[bestIndex].Item2)
+                {
+                    bestIndex = i;
+                }
+            }
+
+            T bestItem = elements[bestIndex].Item1;
+            elements.RemoveAt(bestIndex);
+            return bestItem;
+        }
+
+        public int Count()
+        {
+            return elements.Count;
+        }
+        public bool Contains(T item)
+        {
+            foreach (var element in elements)
+            {
+                if (EqualityComparer<T>.Default.Equals(element.Item1, item))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
+
     public class InformedSearch
     {
-        public List<State> OpenSet { get; set; } = new List<State>();
-        public HashSet<State> Visited { get; set; } = new HashSet<State>();
+        private PriorityQueue<State> OpenSet = new PriorityQueue<State>();
+        private HashSet<State> Visited = new HashSet<State>();
+
         public List<State> MovesWin { get; set; } = new List<State>();//массив шагов для победы для шага вперёд
         public List<State> MovesWinReverse { get; set; } = new List<State>();//массив шагов для победы для шага назад
-
-        Stack<State> stack = new Stack<State>();
-
         Player player = new Player();
 
         int countNode = 0;
         int countIteration = 0;
-        
-        public class State
-        {
-            public (int x, int y) PlayerPosition;
-            public List<(int x, int y)> BoxPositions;
-            public List<(int x, int y)> PointPosition;
-            public State prevMove = null;
-            public int CountMoves = 0;
 
-            public State((int x, int y) playerPos, List<(int x, int y)> boxPos, List<(int x, int y)> pointPos,int CountMoves, State state)
-            {
-                this.PlayerPosition = (playerPos.x, playerPos.y);
-                this.BoxPositions = new List<(int x, int y)>(boxPos);
-                this.PointPosition = new List<(int x, int y)>(pointPos);
-                this.CountMoves = CountMoves;
-                this.prevMove = state;//предыдущий шаг
-            }
 
-            public override bool Equals(object obj)
-            {
-                if (obj == null) return false;
-                State s = (State)obj;
-                if (PlayerPosition != s.PlayerPosition) return false;
-                foreach (var b in BoxPositions)
-                {
-                    if (!s.BoxPositions.Contains(b)) return false;
-                }
-                return true;
-            }
-            
-            
-            public override int GetHashCode()
-            {
-                int hash = 17;
-
-                // Хеширование позиции игрока
-                hash = hash * 31 + PlayerPosition.x.GetHashCode();
-                hash = hash * 31 + PlayerPosition.y.GetHashCode();
-
-                // Хеширование позиций ящиков
-                foreach (var box in BoxPositions)
-                {
-                    hash = hash * 31 + box.x.GetHashCode();
-                    hash = hash * 31 + box.y.GetHashCode();
-                }
-
-                // Хеширование позиций точек
-                foreach (var point in PointPosition)
-                {
-                    hash = hash * 31 + point.x.GetHashCode();
-                    hash = hash * 31 + point.y.GetHashCode();
-                }
-
-                hash = hash * 31 + CountMoves.GetHashCode();
-
-                // Если используется состояние предыдущего хода (если необходимо)
-                if (prevMove != null)
-                {
-                    hash = hash * 31 + prevMove.GetHashCode(); // опционально, если State тоже переопределяет GetHashCode
-                }
-
-                return hash;
-            }
-
-            public int Heuristic()
-            {
-                int heuristicValue = 0;
-                foreach (var box in BoxPositions)
-                {
-                    // Находим ближайшую точку
-                    int minDistance = PointPosition
-                        .Select(point => Math.Abs(point.x - box.x) + Math.Abs(point.y - box.y))
-                        .Min();
-                    heuristicValue += minDistance;
-                }
-                return heuristicValue;
-            }
-
-            public int Cost()
-            {
-                return CountMoves;
-            }
-        }
 
         public bool IsGoalState(State state)
         {
-            int count = 0;
-            foreach (var box in state.BoxPositions)
-            {
-                foreach (var point in state.PointPosition)
-                {
-                    if (box.x == point.x && box.y == point.y)
-                    {
-                        count++;
-                        break;
-                    }
-                }
-            }
-            return count == state.BoxPositions.Count;
+            return state.BoxPositions.All(box => state.PointPosition.Contains(box));
         }
 
         public void Search()
         {
-            OpenSet.Add(new State(Map.Instance.GetPlayerPos(), Map.Instance.GetBoxPosition(),
-                Map.Instance.GetPointPosition(), 0, null));
+            OpenSet.Enqueue(new State(Map.Instance.GetPlayerPos(), Map.Instance.GetBoxPosition(),
+                Map.Instance.GetPointPosition(), 0, null), 0);
 
-            while (OpenSet.Count>0)
+            while (OpenSet.Count() > 0)
             {
                 countIteration++;
-                var current = OpenSet.OrderBy(state => state.Cost() + state.Heuristic()).First();
+                var current = OpenSet.Dequeue();
+
                 if (IsGoalState(current))
                 {
                     Console.WriteLine("win!");
@@ -134,21 +149,24 @@ namespace Lab1
                     WriteMovesWin();
                     return;
                 }
-                OpenSet.Remove(current);
+
                 Visited.Add(current);
-                
+
                 foreach (var move in GetPossibleMoves(current))
                 {
-                    if(Visited.Contains(move)) continue;
+                    if (Visited.Contains(move)) continue;
                     int tentativeCost = current.Cost() + 1;
-                    if (!OpenSet.Contains(move) || tentativeCost < move.Cost())
+                    if (!OpenSet.Contains(move))
                     {
-                        OpenSet.Add(move);
+                        if (tentativeCost <= move.Cost())
+                        {
+                            OpenSet.Enqueue(move, tentativeCost + move.Heuristic());
+                        }
                     }
                 }
             }
         }
-        
+
         public IEnumerable<State> GetPossibleMoves(State current)
         {
             Player player = new Player();
@@ -166,37 +184,17 @@ namespace Lab1
                 if (player.CanMove(current.PlayerPosition, dir, current.BoxPositions))
                 {
                     var tmpBoxes = Map.Instance.MoveBox(current.PlayerPosition, dir, current.BoxPositions);
-                    moves.Add(new State(newPos, tmpBoxes, current.PointPosition,current.Cost() + 1, current));//в конце current -> это предыдущий шаг
+                    yield return new State(newPos, tmpBoxes, current.PointPosition, current.Cost() + 1, current);//в конце current -> это предыдущий шаг
                     countNode++;
                 }
             }
-            return moves;
-        }
-        
-        public void DrawPrevStep(int indexMovesWin)
-        {
-            Map.Instance.DrawClearMap();//функция по очистке карты -> всё что не точка и не стена делать точкой
-            player.DrawPlayer(MovesWinReverse[indexMovesWin].PlayerPosition);//отрисовка игрока
-            for (int i = 0; i < MovesWinReverse[indexMovesWin].PointPosition.Count; i++)
-                Map.Instance.DrawPoint(MovesWinReverse[indexMovesWin].PointPosition[i]);//отрисовка точек
-            for (int i = 0; i < MovesWinReverse[indexMovesWin].BoxPositions.Count; i++)
-                Map.Instance.DrawBox(MovesWinReverse[indexMovesWin].BoxPositions[i]);//отрисовка коробок
-
-            if (indexMovesWin == 0) Console.WriteLine("Стартовая позциия");
-        }
-
-        public bool NumberNextStep(int indexMovesWin)
-        {
-            if (indexMovesWin == MovesWin.Count - 1)
-                return false;
-            else return true;
         }
 
         public int GetCountSteps()
         {
             return MovesWin.Count;
         }
-        
+
         public void fillMovesWin(State current)
         {
             MovesWin.Add(current);//добавление позиции
@@ -208,7 +206,7 @@ namespace Lab1
                 MovesWin.Reverse();//если пред.шага нет, тогда разворачиваем массив шагов, тем самым на первой позиции будет стартовая точка
             }
         }
-        
+
         public void WriteMovesWin()
         {
             for (int i = 0; i < MovesWin.Count; i++)
@@ -226,7 +224,40 @@ namespace Lab1
         {
             return countIteration;
         }
-        
-        
+
+        public void DrawNextStep(int indexMovesWin)
+        {
+            if (indexMovesWin < MovesWin.Count)
+            {
+                Map.Instance.DrawClearMap();//функция по очистке карты -> всё что не точка и не стена делать точкой
+                player.DrawPlayer(MovesWin[indexMovesWin].PlayerPosition);//отрисовка игрока
+                for (int i = 0; i < MovesWin[indexMovesWin].PointPosition.Count; i++)
+                    Map.Instance.DrawPoint(MovesWin[indexMovesWin].PointPosition[i]);//отрисовка точек
+                for (int i = 0; i < MovesWin[indexMovesWin].BoxPositions.Count; i++)
+                    Map.Instance.DrawBox(MovesWin[indexMovesWin].BoxPositions[i]);//отрисовка коробок
+            }
+            else Console.WriteLine("Следующего шага нет!");
+        }
+
+        public void DrawPrevStep(int indexMovesWin)
+        {
+            Map.Instance.DrawClearMap();//функция по очистке карты -> всё что не точка и не стена делать точкой
+            player.DrawPlayer(MovesWinReverse[indexMovesWin].PlayerPosition);//отрисовка игрока
+            for (int i = 0; i < MovesWinReverse[indexMovesWin].PointPosition.Count; i++)
+                Map.Instance.DrawPoint(MovesWinReverse[indexMovesWin].PointPosition[i]);//отрисовка точек
+            for (int i = 0; i < MovesWinReverse[indexMovesWin].BoxPositions.Count; i++)
+                Map.Instance.DrawBox(MovesWinReverse[indexMovesWin].BoxPositions[i]);//отрисовка коробок
+
+            if (indexMovesWin == 0) Console.WriteLine("Стартовая позциия");
+        }
+
+        public bool NumberNextStep(int indexMovesWin)
+        {
+            if (indexMovesWin == MovesWin.Count)
+                return false;
+            else return true;
+        }
+
+
     }
 }

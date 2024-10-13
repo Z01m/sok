@@ -44,11 +44,12 @@
             this.buttonLevel1 = new System.Windows.Forms.Button();
             this.buttonLevel2 = new System.Windows.Forms.Button();
             this.buttonBIS = new System.Windows.Forms.Button();
+            this.button_InformedSearch = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(827, 321);
+            this.button1.Location = new System.Drawing.Point(829, 350);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(94, 23);
             this.button1.TabIndex = 0;
@@ -68,7 +69,7 @@
             // 
             // button_NextStep
             // 
-            this.button_NextStep.Location = new System.Drawing.Point(927, 289);
+            this.button_NextStep.Location = new System.Drawing.Point(929, 318);
             this.button_NextStep.Name = "button_NextStep";
             this.button_NextStep.Size = new System.Drawing.Size(94, 25);
             this.button_NextStep.TabIndex = 2;
@@ -78,7 +79,7 @@
             // 
             // button_PrevStep
             // 
-            this.button_PrevStep.Location = new System.Drawing.Point(827, 289);
+            this.button_PrevStep.Location = new System.Drawing.Point(829, 318);
             this.button_PrevStep.Name = "button_PrevStep";
             this.button_PrevStep.Size = new System.Drawing.Size(94, 26);
             this.button_PrevStep.TabIndex = 3;
@@ -89,7 +90,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(827, 173);
+            this.label1.Location = new System.Drawing.Point(829, 202);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(76, 13);
             this.label1.TabIndex = 4;
@@ -98,7 +99,7 @@
             // labelCountNode
             // 
             this.labelCountNode.AutoSize = true;
-            this.labelCountNode.Location = new System.Drawing.Point(827, 197);
+            this.labelCountNode.Location = new System.Drawing.Point(829, 226);
             this.labelCountNode.Name = "labelCountNode";
             this.labelCountNode.Size = new System.Drawing.Size(13, 13);
             this.labelCountNode.TabIndex = 5;
@@ -107,7 +108,7 @@
             // labelState
             // 
             this.labelState.AutoSize = true;
-            this.labelState.Location = new System.Drawing.Point(830, 228);
+            this.labelState.Location = new System.Drawing.Point(832, 257);
             this.labelState.Name = "labelState";
             this.labelState.Size = new System.Drawing.Size(70, 13);
             this.labelState.TabIndex = 6;
@@ -126,7 +127,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(927, 228);
+            this.label2.Location = new System.Drawing.Point(929, 257);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(73, 13);
             this.label2.TabIndex = 8;
@@ -135,7 +136,7 @@
             // labelCountSteps
             // 
             this.labelCountSteps.AutoSize = true;
-            this.labelCountSteps.Location = new System.Drawing.Point(930, 260);
+            this.labelCountSteps.Location = new System.Drawing.Point(932, 289);
             this.labelCountSteps.Name = "labelCountSteps";
             this.labelCountSteps.Size = new System.Drawing.Size(13, 13);
             this.labelCountSteps.TabIndex = 9;
@@ -154,7 +155,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(927, 173);
+            this.label3.Location = new System.Drawing.Point(929, 202);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(94, 13);
             this.label3.TabIndex = 11;
@@ -163,7 +164,7 @@
             // labelCountIteration
             // 
             this.labelCountIteration.AutoSize = true;
-            this.labelCountIteration.Location = new System.Drawing.Point(927, 197);
+            this.labelCountIteration.Location = new System.Drawing.Point(929, 226);
             this.labelCountIteration.Name = "labelCountIteration";
             this.labelCountIteration.Size = new System.Drawing.Size(13, 13);
             this.labelCountIteration.TabIndex = 12;
@@ -199,11 +200,22 @@
             this.buttonBIS.UseVisualStyleBackColor = true;
             this.buttonBIS.Click += new System.EventHandler(this.buttonBIS_Click);
             // 
+            // button_InformedSearch
+            // 
+            this.button_InformedSearch.Location = new System.Drawing.Point(829, 146);
+            this.button_InformedSearch.Name = "button_InformedSearch";
+            this.button_InformedSearch.Size = new System.Drawing.Size(92, 35);
+            this.button_InformedSearch.TabIndex = 16;
+            this.button_InformedSearch.Text = "Информ. поиск";
+            this.button_InformedSearch.UseVisualStyleBackColor = true;
+            this.button_InformedSearch.Click += new System.EventHandler(this.button_InformedSearch_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1041, 512);
+            this.Controls.Add(this.button_InformedSearch);
             this.Controls.Add(this.buttonBIS);
             this.Controls.Add(this.buttonLevel2);
             this.Controls.Add(this.buttonLevel1);
@@ -246,6 +258,7 @@
         private System.Windows.Forms.Button buttonLevel1;
         private System.Windows.Forms.Button buttonLevel2;
         private System.Windows.Forms.Button buttonBIS;
+        private System.Windows.Forms.Button button_InformedSearch;
     }
 }
 
