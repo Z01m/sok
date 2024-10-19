@@ -158,14 +158,14 @@ namespace Lab1
 
         private void button2_Click(object sender, EventArgs e)//Поиск в ширину
         {
-            bfs._BFS_();
+            IS.Search();
             countIndexStep = 1;
             checkBFS = true;
             checkDFS = false;
             button_NextStep.Enabled = true;
-            labelCountNode.Text = bfs.GetCountNode().ToString();
-            labelCountSteps.Text = bfs.GetCountSteps().ToString();
-            labelCountIteration.Text = bfs.GetCountIteration().ToString();
+            labelCountNode.Text = IS.GetCountNode().ToString();
+            labelCountSteps.Text = IS.GetCountSteps().ToString();
+            labelCountIteration.Text = IS.GetCountIteration().ToString();
             button_DFS.Enabled = false;
             button2.Enabled = false;
             buttonBIS.Enabled = false;
