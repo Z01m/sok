@@ -29,12 +29,12 @@ namespace Lab1
                 if (other == null) return false;
 
                 if (PlayerPosition != other.PlayerPosition) return false;
-                if (CountMoves != other.CountMoves) return false;
-
-                // Compare box positions using a sorted list or HashSet for faster comparison
-                var thisBoxes = new HashSet<(int x, int y)>(BoxPositions);
-                var otherBoxes = new HashSet<(int x, int y)>(other.BoxPositions);
-                return thisBoxes.SetEquals(otherBoxes);
+                //if (CountMoves != other.CountMoves) return false;
+                foreach (var b in BoxPositions)
+                {
+                    if (!other.BoxPositions.Contains(b)) return false;
+                }
+                return true;
             }
 
             public override int GetHashCode()
@@ -52,7 +52,7 @@ namespace Lab1
                 return hash;
             }
 
-            private int BFS((int x, int y) start)
+            private int BFS((int x, int y) start) // находит длину пути от ящика до любой ближайшей точки
             {
                 Queue<((int x, int y) position, int distance)> queue = new Queue<((int, int), int)>();
                 HashSet<(int x, int y)> visited = new HashSet<(int x, int y)>();
@@ -93,69 +93,93 @@ namespace Lab1
                 return 10000; // если недоступно
             }
             
-            public int Heuristic()
+            public int Heuristic() //возвращает суммарную дистанцию от каждого ящика до точки 
             {
                 int totalDistance = 0;
                 foreach (var box in BoxPositions)
                 {
-                    int minDistance = BFS(box);
+                    int minDistance = BFS(box); //дистанция считается через поиск в ширину 
                     totalDistance += minDistance; 
                 }
                 //Console.WriteLine(totalDistance);
-                Console.WriteLine(totalDistance);
+                
                 return totalDistance;
             }
-            
-            
-            
 
-            public int Cost()
+            public int Cost() // возвращает кол-во пройденных шагов 
             {
                 return CountMoves;
             }
         }
-    public class PriorityQueue<State>
-{
+    public class PriorityQueue<State> 
+    {
     private List<Tuple<State, int>> elements = new List<Tuple<State, int>>();
 
-    public void Enqueue(State item, int priority)
-    {
-        elements.Add(Tuple.Create(item, priority));
-    }
-
-    public State Dequeue() //достает эллемент с мин приоритетом
-    {
-        int bestIndex = 0;
-
-        for (int i = 0; i < elements.Count; i++)
+        public void Enqueue(State item, int priority)
         {
-            if (elements[i].Item2 < elements[bestIndex].Item2)
-            {
-                bestIndex = i;
-            }
+            elements.Add(Tuple.Create(item, priority));
         }
-        State bestItem = elements[bestIndex].Item1;
-        elements.RemoveAt(bestIndex);
-        return bestItem;
-    }
-
-    public int Count()
-    {
-        return elements.Count;
-    }
-    public bool Contains(State item)
-    {
-        foreach (var element in elements)
-        {
-            if (item.Equals(element.Item1))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
     
-}
+        public State Dequeue() //достает эллемент с мин приоритетом
+        {
+            int bestIndex = 0;
+
+            for (int i = 0; i < elements.Count; i++)
+            {
+                if (elements[i].Item2 < elements[bestIndex].Item2)
+                {
+                    bestIndex = i;
+                }
+            }
+            State bestItem = elements[bestIndex].Item1;
+            elements.RemoveAt(bestIndex);
+            return bestItem;
+        }
+
+        public int Count()
+        {
+            return elements.Count;
+        }
+        public bool Contains(State item)
+        {
+            foreach (var element in elements)
+            {
+                if (item.Equals(element.Item1))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        public void Change(State current, int newPriority)
+        {
+            // Найти индекс элемента, который нужно изменить
+            for (int i = 0; i < elements.Count; i++)
+            {
+                if (elements[i].Item1.Equals(current))
+                {
+                    elements.RemoveAt(i);
+                    elements.Add(Tuple.Create(current, newPriority));
+                    return; 
+                }
+            }
+        }
+
+
+        public Tuple<State, int> Find(State current)
+        {
+            for (int i = 0; i < elements.Count; i++)
+            {
+                if (elements[i].Item1.Equals(current))
+                {
+                    return elements[i];
+                }
+            }
+            return null;
+        }
+    
+    }
     
     public class InformedSearch
     {
@@ -164,12 +188,9 @@ namespace Lab1
         
         public List<State> MovesWin { get; set; } = new List<State>();//массив шагов для победы для шага вперёд
         public List<State> MovesWinReverse { get; set; } = new List<State>();//массив шагов для победы для шага назад
-        Player player = new Player();
 
         int countNode = 0;
         int countIteration = 0;
-        
-       
 
         public bool IsGoalState(State state)
         {
@@ -178,8 +199,10 @@ namespace Lab1
 
         public void Search()
         {
-            OpenSet.Enqueue(new State(Map.Instance.GetPlayerPos(), Map.Instance.GetBoxPosition(),
-                Map.Instance.GetPointPosition(), 0, null), 0);
+            var startState = new State(Map.Instance.GetPlayerPos(), Map.Instance.GetBoxPosition(),
+                Map.Instance.GetPointPosition(), 0, null);
+    
+            OpenSet.Enqueue(startState, 0);
 
             while (OpenSet.Count() > 0)
             {
@@ -198,14 +221,38 @@ namespace Lab1
 
                 foreach (var move in GetPossibleMoves(current))
                 {
-                    if (Visited.Contains(move)) continue;
-                    if (!OpenSet.Contains(move))
+                    int newCost = move.Cost() + move.Heuristic();
+
+                    // Проверяем, если move уже в OpenSet
+                    if (OpenSet.Contains(move))
                     {
-                        OpenSet.Enqueue(move, move.Heuristic());
+                        var existingEntry = OpenSet.Find(move);
+                        if (existingEntry.Item2 > newCost)
+                        {
+                            OpenSet.Change(move, newCost);
+                        }
+                    }
+                    // Проверяем, если move уже в Visited
+                    else if (Visited.Contains(move))
+                    {
+                        var visitedEntry = IndexOf(Visited, move);
+                        int visitedCost = visitedEntry.Cost() + visitedEntry.Heuristic();
+
+                        if (visitedCost > newCost)
+                        {
+                            Visited.Remove(visitedEntry);
+                            OpenSet.Enqueue(move, newCost); // Оставить только enqueue
+                        }
+                    }
+                    // Если move ни в одном из множеств, добавляем его в OpenSet
+                    else
+                    {
+                        OpenSet.Enqueue(move, newCost);
                     }
                 }
             }
         }
+
         
         public IEnumerable<State> GetPossibleMoves(State current)
         {
@@ -229,6 +276,21 @@ namespace Lab1
                 }
             }
         }
+        
+        public State IndexOf(HashSet<State> collection, State searchItem)
+        {
+            State index;
+
+            foreach (var item in collection)
+            {
+                if (item.Equals(searchItem))
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+        
 
         public int GetCountSteps()
         {
@@ -264,10 +326,6 @@ namespace Lab1
         {
             return countIteration;
         }
-        
-        
-        
-        
-        
+
     }
 }
