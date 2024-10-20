@@ -42,8 +42,8 @@ namespace Lab1
                 int hash = 17;
                 hash = hash * 31 + PlayerPosition.x.GetHashCode();
                 hash = hash * 31 + PlayerPosition.y.GetHashCode();
-
-                foreach (var box in BoxPositions)
+                var sortedPositions = BoxPositions.OrderBy(pos => pos.x).ThenBy(pos => pos.y).ToList();
+                foreach (var box in sortedPositions)
                 {
                     hash = hash * 31 + box.x.GetHashCode();
                     hash = hash * 31 + box.y.GetHashCode();
@@ -102,7 +102,7 @@ namespace Lab1
                     totalDistance += minDistance; 
                 }
                 //Console.WriteLine(totalDistance);
-                
+                //Console.WriteLine(totalDistance);
                 return totalDistance;
             }
 
@@ -159,9 +159,12 @@ namespace Lab1
             {
                 if (elements[i].Item1.Equals(current))
                 {
+                    // Удаляем старый элемент
+                    var oldElement = elements[i];
                     elements.RemoveAt(i);
+                    // Добавляем новый элемент с обновленным приоритетом
                     elements.Add(Tuple.Create(current, newPriority));
-                    return; 
+                    return; // Выйти после изменения
                 }
             }
         }
@@ -199,10 +202,8 @@ namespace Lab1
 
         public void Search()
         {
-            var startState = new State(Map.Instance.GetPlayerPos(), Map.Instance.GetBoxPosition(),
-                Map.Instance.GetPointPosition(), 0, null);
-    
-            OpenSet.Enqueue(startState, 0);
+            OpenSet.Enqueue(new State(Map.Instance.GetPlayerPos(), Map.Instance.GetBoxPosition(),
+                Map.Instance.GetPointPosition(), 0, null), 0);
 
             while (OpenSet.Count() > 0)
             {
@@ -216,43 +217,28 @@ namespace Lab1
                     WriteMovesWin();
                     return;
                 }
-
+                
                 Visited.Add(current);
 
                 foreach (var move in GetPossibleMoves(current))
                 {
-                    int newCost = move.Cost() + move.Heuristic();
+                    if (OpenSet.Contains(move) && (OpenSet.Find(move).Item2 > move.Cost() + move.Heuristic()))
+                    {
+                        OpenSet.Change(move, move.Cost() + move.Heuristic());
+                        continue;
+                    }
 
-                    // Проверяем, если move уже в OpenSet
-                    if (OpenSet.Contains(move))
+                    if (Visited.Contains(move) && IndexOf(Visited,move).Cost() + IndexOf(Visited,move).Heuristic() > move.Cost() + move.Heuristic() )
                     {
-                        var existingEntry = OpenSet.Find(move);
-                        if (existingEntry.Item2 > newCost)
-                        {
-                            OpenSet.Change(move, newCost);
-                        }
+                        Visited.Remove(move);
+                        OpenSet.Change(move, move.Cost() + move.Heuristic());
+                        continue;
                     }
-                    // Проверяем, если move уже в Visited
-                    else if (Visited.Contains(move))
-                    {
-                        var visitedEntry = IndexOf(Visited, move);
-                        int visitedCost = visitedEntry.Cost() + visitedEntry.Heuristic();
-
-                        if (visitedCost > newCost)
-                        {
-                            Visited.Remove(visitedEntry);
-                            OpenSet.Enqueue(move, newCost); // Оставить только enqueue
-                        }
-                    }
-                    // Если move ни в одном из множеств, добавляем его в OpenSet
-                    else
-                    {
-                        OpenSet.Enqueue(move, newCost);
-                    }
+                    if(!Visited.Contains(move) && !OpenSet.Contains(move))
+                        OpenSet.Enqueue(move, move.Cost() + move.Heuristic());
                 }
             }
         }
-
         
         public IEnumerable<State> GetPossibleMoves(State current)
         {
